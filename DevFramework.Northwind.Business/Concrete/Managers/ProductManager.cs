@@ -11,6 +11,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DevFramework.Core.CrossCuttingCorners.Caching.Microsoft;
+using DevFramework.Core.Aspects.Postsharp;
+using DevFramework.Core.Aspects.Postsharp.CacheAspects;
+using DevFramework.Core.Aspects.Postsharp.TransactionAspects;
+using DevFramework.Core.CrossCuttingCorners.Logging.Log4Net.Loggers;
+using DevFramework.Core.Aspects.Postsharp.LogAspects;
 //using System.Transactions;
 //using DevFramework.Aspects.Postsharp;
 
@@ -24,17 +29,18 @@ namespace DevFramework.Northwind.Business.Concrete.Managers
         {
             _productDal = productDal;
         }
-        //[FluentValidationAspect(typeof(ProductValidator))]
-        //[CacheRemoveAspect(typeof(MemoryCacheManager))]
+        [FluentValidationAspect(typeof(ProductValidator))]
+        [CacheRemoveAspect(typeof(MemoryCacheManager))]
         public Product Add(Product product)
         {           
             return _productDal.Add(product);
         }
-        //[FluentValidationAspect(typeof(ProductValidator))]
-        //postsharp manageNuGet packages'den business ve businesstest'e de eklenir.
-        //postharp 4.2.17 kurulması gerekir.versiyonunu kontrol et.vs'nin bagı
+        [FluentValidationAspect(typeof(ProductValidator))]
+       // postsharp manageNuGet packages'den business ve businesstest'e de eklenir.
+       // postharp 4.2.17 kurulması gerekir.versiyonunu kontrol et.vs'nin bagı
 
-        //[CacheAspect(typeof(MemoryCacheManager),120)]
+        [CacheAspect(typeof(MemoryCacheManager), 120)]
+        [LogAspect(typeof(DatabaseLogger))]
         public List<Product> GetAll()
         {
             return _productDal.GetList(null);
@@ -44,7 +50,7 @@ namespace DevFramework.Northwind.Business.Concrete.Managers
         {
             return _productDal.Get(p => p.ProductID == id);
         }
-        //[TransactionScopeAspect]
+        [TransactionScopeAspect]
         public void TransactionalOperation(Product product1,Product product2)
         {          
               _productDal.Add(product1);
